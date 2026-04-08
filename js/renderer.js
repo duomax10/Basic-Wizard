@@ -36,7 +36,7 @@ class Renderer {
     this._shakeDy = shake > 0 ? (Math.random() - 0.5) * shake * 2 : 0;
   }
 
-  renderFrame(dungeon, dungeonConfig, player, enemies, spellManager) {
+  renderFrame(dungeon, dungeonConfig, player, enemies, spellManager, input) {
     const ctx = this.ctx;
     const W = this.W, H = this.H;
     const cx = Math.round(this.camX + this._shakeDx);
@@ -71,8 +71,8 @@ class Renderer {
     // ── Minimap
     this._renderMinimap(ctx, dungeon, player, W, H);
 
-    // ── Mobile joystick hint
-    this._renderJoystick(ctx, W, H);
+    // ── Mobile joystick + cast button
+    this._renderJoystick(ctx, W, H, input);
   }
 
   _renderTiles(ctx, dungeon, cfg, cx, cy) {
@@ -248,12 +248,82 @@ class Renderer {
     ctx.shadowBlur = 0;
   }
 
-  _renderJoystick(ctx, W, H) {
-    // Only relevant on touch; CSS shows/hides the HTML overlay but we also
-    // draw a subtle hint if touch is detected.
+  _renderJoystick(ctx, W, H, input) {
     const isTouchDevice = 'ontouchstart' in window;
-    if (!isTouchDevice) return;
-    // Hint drawn in CSS overlay (see game.css), nothing extra here.
+    if (!isTouchDevice || !input) return;
+
+    const maxR = 60;
+
+    if (input.joystick.active) {
+      // Active joystick – draw base + thumb
+      const bx = input.joystick.startX;
+      const by = input.joystick.startY;
+
+      ctx.beginPath();
+      ctx.arc(bx, by, maxR, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const tx = bx + input.joystick.dx * maxR;
+      const ty = by + input.joystick.dy * maxR;
+      ctx.beginPath();
+      ctx.arc(tx, ty, 22, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(180,140,255,0.5)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(200,160,255,0.8)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else {
+      // Idle hint – faded joystick in bottom-left
+      const hx = 70;
+      const hy = H - 80;
+
+      ctx.beginPath();
+      ctx.arc(hx, hy, maxR, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(hx, hy, 18, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(180,140,255,0.2)';
+      ctx.fill();
+    }
+
+    // ── Cast button (right side)
+    const castR = 34;
+    const castX = W - 60;
+    const castY = H - 200;
+
+    ctx.save();
+    ctx.shadowColor = 'rgba(180,140,255,0.5)';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(castX, castY, castR, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(60,20,100,0.7)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(180,140,255,0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.font = '28px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#fff';
+    ctx.fillText('⚡', castX, castY);
+
+    ctx.font = '9px monospace';
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('CAST', castX, castY + castR + 12);
+    ctx.textAlign = 'left';
+    ctx.restore();
   }
 }
 
