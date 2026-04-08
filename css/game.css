@@ -1,0 +1,116 @@
+/* ─── Reset & base ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: 'Georgia', serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ─── Game container ─────────────────────────────────────────────────────── */
+#game-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#game-canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* ─── Mobile virtual joystick ────────────────────────────────────────────── */
+#mobile-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+/* Show touch controls only on touch devices */
+@media (pointer: coarse) {
+  #mobile-controls {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 0 20px 20px;
+    pointer-events: none;
+  }
+}
+
+#joystick-area {
+  pointer-events: all;
+  width: 110px;
+  height: 110px;
+  position: relative;
+}
+
+#joystick-base {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#joystick-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(180, 140, 255, 0.5);
+  border: 2px solid rgba(200, 160, 255, 0.8);
+  position: absolute;
+  pointer-events: none;
+  transition: transform 0.05s;
+}
+
+/* Spell buttons right side */
+#spell-buttons {
+  pointer-events: all;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-bottom: 4px;
+}
+
+.spell-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  border: 2px solid rgba(180, 140, 255, 0.6);
+  background: rgba(60, 20, 100, 0.75);
+  font-size: 26px;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.spell-btn:active {
+  background: rgba(120, 60, 180, 0.9);
+  transform: scale(0.93);
+}
+
+/* ─── Responsive scaling hints ───────────────────────────────────────────── */
+@media (max-width: 480px) {
+  #game-canvas {
+    cursor: default;
+  }
+}
