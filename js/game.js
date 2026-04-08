@@ -84,7 +84,11 @@ class Game {
           if (this._advanceCallback) this.ui.handleNextLevelClick(mx, my);
           break;
         case STATE.PLAYING:
-          if (this.player) this.ui.handleMobileSpellBtnClick(mx, my, this.player);
+          if (this.player) {
+            if (this.ui.handleMobileSpellBtnClick(mx, my, this.player)) {
+              this.input.actionTapped = false; // Don't cast when switching spells
+            }
+          }
           break;
       }
     };
@@ -258,7 +262,8 @@ class Game {
 
     const wantCast = this.input.keys['Space']     ||
                      this.input.keys['KeyF']       ||
-                     this.input.mouse.down;
+                     this.input.mouse.down         ||
+                     this.input.actionTapped;
     if (!wantCast || !p.canCast(p.activeSpell)) return;
 
     let tx, ty;
@@ -301,7 +306,7 @@ class Game {
       case STATE.SPELL_SELECT: {
         const cfg = DUNGEONS[this.dungeonIdx];
         this.renderer.renderFrame(
-          this.dungeon, cfg, this.player, this.enemies, this.spellManager);
+          this.dungeon, cfg, this.player, this.enemies, this.spellManager, this.input);
 
         if (this.levelUpTimer > 0) {
           this.ui.renderLevelUpBanner(this.player, this.levelUpTimer / this.levelUpBannerDuration);
