@@ -20,87 +20,185 @@ function drawWizardBase(ctx, cx, cy, scale, robeColor, robeLight, hairColor, eye
   const walk = Math.sin(frame * 0.25);
   const sway = walk * 2;
 
+  // ── Magical aura (subtle pulse)
+  const auraPulse = 0.06 + Math.sin(frame * 0.04) * 0.03;
+  const auraGrad = ctx.createRadialGradient(0, 0, 5, 0, 0, 35);
+  auraGrad.addColorStop(0, `rgba(180,140,255,${auraPulse})`);
+  auraGrad.addColorStop(1, 'rgba(180,140,255,0)');
+  ctx.fillStyle = auraGrad;
+  ctx.beginPath();
+  ctx.arc(0, bob, 35, 0, Math.PI * 2);
+  ctx.fill();
+
   // ── Shadow (scales with bob)
   ctx.fillStyle = 'rgba(0,0,0,0.3)';
   ctx.beginPath();
-  ctx.ellipse(0, 16, 12 - bob * 0.3, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, 17, 13 - bob * 0.3, 4, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── Cape (flows behind)
-  ctx.fillStyle = hatColor;
-  ctx.globalAlpha = 0.7;
+  // ── Boots (peek out below robe)
+  ctx.fillStyle = '#3a2210';
   ctx.beginPath();
-  ctx.moveTo(-8, -6 + bob);
-  ctx.quadraticCurveTo(-12 - sway, 4 + bob, -10 - sway * 0.5, 16);
-  ctx.lineTo(10 - sway * 0.5, 16);
-  ctx.quadraticCurveTo(12 - sway, 4 + bob, 8, -6 + bob);
+  ctx.ellipse(-5 + walk * 2, 15, 4, 3, 0, 0, Math.PI * 2);
+  ctx.ellipse(5 - walk * 2, 15, 4, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Boot highlight
+  ctx.fillStyle = '#5a3a20';
+  ctx.beginPath();
+  ctx.ellipse(-5 + walk * 2, 14.5, 2.5, 1.5, 0, 0, Math.PI * 2);
+  ctx.ellipse(5 - walk * 2, 14.5, 2.5, 1.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Cape (flows behind with gradient)
+  const capeGrad = ctx.createLinearGradient(0, -6, 0, 18);
+  capeGrad.addColorStop(0, hatColor);
+  capeGrad.addColorStop(1, 'rgba(0,0,0,0.3)');
+  ctx.fillStyle = capeGrad;
+  ctx.globalAlpha = 0.65;
+  ctx.beginPath();
+  ctx.moveTo(-9, -7 + bob);
+  ctx.quadraticCurveTo(-14 - sway * 1.2, 4 + bob, -11 - sway * 0.8, 18);
+  ctx.quadraticCurveTo(-6 - sway * 0.5, 16, 0, 18);
+  ctx.quadraticCurveTo(6 - sway * 0.5, 16, 11 - sway * 0.8, 18);
+  ctx.quadraticCurveTo(14 - sway * 1.2, 4 + bob, 9, -7 + bob);
+  ctx.closePath();
+  ctx.fill();
+  // Cape inner lining
+  ctx.fillStyle = robeLight;
+  ctx.globalAlpha = 0.15;
+  ctx.beginPath();
+  ctx.moveTo(-6, -4 + bob);
+  ctx.quadraticCurveTo(-9 - sway, 6 + bob, -7 - sway * 0.5, 16);
+  ctx.lineTo(7 - sway * 0.5, 16);
+  ctx.quadraticCurveTo(9 - sway, 6 + bob, 6, -4 + bob);
   ctx.closePath();
   ctx.fill();
   ctx.globalAlpha = 1;
 
-  // ── Robe with gradient
-  const robeGrad = ctx.createLinearGradient(-14, -4, 14, 14);
+  // ── Robe body with gradient
+  const robeGrad = ctx.createLinearGradient(-14, -6, 8, 16);
   robeGrad.addColorStop(0, robeLight);
-  robeGrad.addColorStop(0.5, robeColor);
+  robeGrad.addColorStop(0.35, robeColor);
   robeGrad.addColorStop(1, robeColor);
   ctx.fillStyle = robeGrad;
   ctx.beginPath();
-  ctx.moveTo(-11, -4 + bob);
+  ctx.moveTo(-11, -5 + bob);
   ctx.lineTo(-13 + sway * 0.5, 14);
   ctx.lineTo(13 + sway * 0.5, 14);
-  ctx.lineTo(11, -4 + bob);
+  ctx.lineTo(11, -5 + bob);
   ctx.closePath();
   ctx.fill();
 
-  // Robe highlight strip
-  ctx.fillStyle = robeLight;
-  ctx.globalAlpha = 0.4;
+  // Robe side shadow (depth)
+  ctx.fillStyle = 'rgba(0,0,0,0.12)';
   ctx.beginPath();
-  ctx.moveTo(-2, -4 + bob);
-  ctx.lineTo(-3, 14);
-  ctx.lineTo(2, 14);
-  ctx.lineTo(3, -4 + bob);
+  ctx.moveTo(-11, -5 + bob);
+  ctx.lineTo(-13 + sway * 0.5, 14);
+  ctx.lineTo(-8 + sway * 0.3, 14);
+  ctx.lineTo(-8, -3 + bob);
+  ctx.closePath();
+  ctx.fill();
+
+  // Robe highlight strip (center seam)
+  ctx.fillStyle = robeLight;
+  ctx.globalAlpha = 0.3;
+  ctx.beginPath();
+  ctx.moveTo(-1.5, -5 + bob);
+  ctx.lineTo(-2.5, 14);
+  ctx.lineTo(2.5, 14);
+  ctx.lineTo(1.5, -5 + bob);
   ctx.closePath();
   ctx.fill();
   ctx.globalAlpha = 1;
 
   // Robe fold lines
-  ctx.strokeStyle = 'rgba(0,0,0,0.15)';
-  ctx.lineWidth = 0.8;
+  ctx.strokeStyle = 'rgba(0,0,0,0.12)';
+  ctx.lineWidth = 0.7;
   ctx.beginPath();
   ctx.moveTo(-7, 0 + bob); ctx.lineTo(-8 + sway * 0.3, 14);
   ctx.moveTo(7, 0 + bob);  ctx.lineTo(8 + sway * 0.3, 14);
+  ctx.moveTo(-4, 3 + bob); ctx.lineTo(-5 + sway * 0.2, 14);
+  ctx.moveTo(4, 3 + bob);  ctx.lineTo(5 + sway * 0.2, 14);
   ctx.stroke();
 
-  // Robe hem
+  // Scalloped robe hem
   ctx.strokeStyle = robeLight;
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(-13 + sway * 0.5, 13);
-  ctx.lineTo(13 + sway * 0.5, 13);
+  const hemY = 13;
+  ctx.moveTo(-13 + sway * 0.5, hemY);
+  for (let i = 0; i < 6; i++) {
+    const hx = -13 + sway * 0.5 + (i + 0.5) * (26 / 6);
+    ctx.quadraticCurveTo(hx, hemY + 2.5, -13 + sway * 0.5 + (i + 1) * (26 / 6), hemY);
+  }
   ctx.stroke();
 
-  // ── Belt with buckle
+  // ── Shoulder collar / trim
+  ctx.fillStyle = robeLight;
+  ctx.globalAlpha = 0.5;
+  ctx.beginPath();
+  ctx.ellipse(0, -6 + bob, 12, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  // Collar edge
+  ctx.strokeStyle = robeLight;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.ellipse(0, -6 + bob, 12, 3, 0, Math.PI * 0.85, Math.PI * 0.15, true);
+  ctx.stroke();
+
+  // ── Belt with ornate buckle
   ctx.fillStyle = '#3a2a10';
-  ctx.fillRect(-11, -1 + bob, 22, 3);
+  ctx.fillRect(-11, -1.5 + bob, 22, 4);
+  // Buckle
   ctx.fillStyle = '#c8a830';
-  ctx.fillRect(-2, -1 + bob, 4, 3);
+  ctx.beginPath();
+  ctx.roundRect(-3, -2 + bob, 6, 5, 1);
+  ctx.fill();
+  ctx.strokeStyle = '#a08020';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.roundRect(-3, -2 + bob, 6, 5, 1);
+  ctx.stroke();
+  // Buckle gem
+  ctx.fillStyle = eyeColor;
+  ctx.beginPath();
+  ctx.arc(0, 0.5 + bob, 1.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Free hand (left side)
+  ctx.fillStyle = '#f5c8a0';
+  ctx.beginPath();
+  ctx.ellipse(-12, 4 + bob + walk * 2, 3, 2.5, -0.2, 0, Math.PI * 2);
+  ctx.fill();
 
   // ── Neck
   ctx.fillStyle = '#f5c8a0';
-  ctx.fillRect(-4, -10 + bob, 8, 6);
+  ctx.fillRect(-4, -11 + bob, 8, 6);
 
   // ── Head
-  const hy = -21 + bob;
+  const hy = -22 + bob;
+  // Head shadow
+  ctx.fillStyle = '#e0b090';
+  ctx.beginPath();
+  ctx.ellipse(0, hy + 1, 10.5, 11.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Head
   ctx.fillStyle = '#f5c8a0';
   ctx.beginPath();
   ctx.ellipse(0, hy, 10, 11, 0, 0, Math.PI * 2);
+  ctx.fill();
+  // Cheek blush
+  ctx.fillStyle = 'rgba(220,150,130,0.2)';
+  ctx.beginPath();
+  ctx.ellipse(-5, hy + 3, 3, 2, 0, 0, Math.PI * 2);
+  ctx.ellipse(6, hy + 3, 3, 2, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // ── Hair base (back)
   ctx.fillStyle = hairColor;
   ctx.beginPath();
-  ctx.ellipse(0, hy - 4, 10, 9, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, hy - 4, 10.5, 9, 0, 0, Math.PI * 2);
   ctx.fill();
 
   // ── Face skin overlay
@@ -109,79 +207,136 @@ function drawWizardBase(ctx, cx, cy, scale, robeColor, robeLight, hairColor, eye
   ctx.ellipse(1, hy + 1, 7.5, 8, 0, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── Eyebrows
+  // ── Eyebrows (expressive)
   ctx.strokeStyle = hairColor;
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = 1.8;
+  ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(-5, hy - 2); ctx.lineTo(-1, hy - 2.5);
-  ctx.moveTo(2, hy - 2.5); ctx.lineTo(6, hy - 2);
+  ctx.moveTo(-5.5, hy - 2.5); ctx.quadraticCurveTo(-3, hy - 3.5, -0.5, hy - 2.8);
+  ctx.moveTo(1.5, hy - 2.8); ctx.quadraticCurveTo(4, hy - 3.5, 6.5, hy - 2.5);
   ctx.stroke();
+  ctx.lineCap = 'butt';
 
   // ── Eyes (white + iris + pupil + highlight)
-  // Whites
   ctx.fillStyle = '#fff';
   ctx.beginPath();
-  ctx.ellipse(-3, hy + 1, 2.2, 2, 0, 0, Math.PI * 2);
-  ctx.ellipse(4, hy + 1, 2.2, 2, 0, 0, Math.PI * 2);
+  ctx.ellipse(-3, hy + 1, 2.5, 2.2, 0, 0, Math.PI * 2);
+  ctx.ellipse(4, hy + 1, 2.5, 2.2, 0, 0, Math.PI * 2);
   ctx.fill();
+  // Eye outline
+  ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+  ctx.lineWidth = 0.5;
+  ctx.beginPath();
+  ctx.ellipse(-3, hy + 1, 2.5, 2.2, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(4, hy + 1, 2.5, 2.2, 0, 0, Math.PI * 2);
+  ctx.stroke();
   // Iris
   ctx.fillStyle = eyeColor;
   ctx.beginPath();
-  ctx.arc(-3, hy + 1, 1.5, 0, Math.PI * 2);
-  ctx.arc(4, hy + 1, 1.5, 0, Math.PI * 2);
+  ctx.arc(-3, hy + 1.2, 1.6, 0, Math.PI * 2);
+  ctx.arc(4, hy + 1.2, 1.6, 0, Math.PI * 2);
   ctx.fill();
   // Pupil
   ctx.fillStyle = '#111';
   ctx.beginPath();
-  ctx.arc(-3, hy + 1.3, 0.8, 0, Math.PI * 2);
-  ctx.arc(4, hy + 1.3, 0.8, 0, Math.PI * 2);
+  ctx.arc(-3, hy + 1.4, 0.9, 0, Math.PI * 2);
+  ctx.arc(4, hy + 1.4, 0.9, 0, Math.PI * 2);
   ctx.fill();
   // Highlight
   ctx.fillStyle = '#fff';
   ctx.beginPath();
-  ctx.arc(-3.5, hy + 0.3, 0.5, 0, Math.PI * 2);
-  ctx.arc(3.5, hy + 0.3, 0.5, 0, Math.PI * 2);
+  ctx.arc(-3.8, hy + 0.2, 0.6, 0, Math.PI * 2);
+  ctx.arc(3.2, hy + 0.2, 0.6, 0, Math.PI * 2);
   ctx.fill();
 
   // ── Nose
-  ctx.fillStyle = '#e8a888';
+  ctx.fillStyle = '#e0a888';
   ctx.beginPath();
-  ctx.arc(1, hy + 3.5, 1.2, 0, Math.PI * 2);
+  ctx.ellipse(1, hy + 4, 1.5, 1, 0.2, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = '#d89878';
+  ctx.beginPath();
+  ctx.arc(0.2, hy + 4.3, 0.5, 0, Math.PI * 2);
   ctx.fill();
 
-  // ── Mouth (slight smile)
-  ctx.strokeStyle = '#c0887070';
+  // ── Mouth
+  ctx.strokeStyle = '#b0706060';
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(1, hy + 6, 3, 0.1, Math.PI - 0.1);
+  ctx.arc(1, hy + 6.5, 2.5, 0.2, Math.PI - 0.2);
   ctx.stroke();
 
-  // ── Hat with gradient and curve
-  const hatGrad = ctx.createLinearGradient(-10, hy - 9, 6, hy - 30);
+  // ── Hat with gradient, curve, and pattern
+  const hatGrad = ctx.createLinearGradient(-10, hy - 9, 4, hy - 34);
   hatGrad.addColorStop(0, hatColor);
-  hatGrad.addColorStop(1, robeLight);
+  hatGrad.addColorStop(0.7, robeLight);
+  hatGrad.addColorStop(1, hatColor);
   ctx.fillStyle = hatGrad;
   ctx.beginPath();
-  ctx.moveTo(-10, hy - 9);
-  ctx.lineTo(10, hy - 9);
-  ctx.lineTo(6, hy - 22);
-  ctx.quadraticCurveTo(3, hy - 32, -2 + sway, hy - 30);
-  ctx.lineTo(-5, hy - 22);
+  ctx.moveTo(-11, hy - 9);
+  ctx.lineTo(11, hy - 9);
+  ctx.lineTo(7, hy - 22);
+  ctx.quadraticCurveTo(4, hy - 36, -3 + sway * 0.8, hy - 34);
+  ctx.quadraticCurveTo(-6 + sway * 0.4, hy - 28, -6, hy - 22);
   ctx.closePath();
   ctx.fill();
-  // Hat band
+  // Hat shadow fold
+  ctx.fillStyle = 'rgba(0,0,0,0.1)';
+  ctx.beginPath();
+  ctx.moveTo(-11, hy - 9);
+  ctx.lineTo(-6, hy - 22);
+  ctx.lineTo(-3, hy - 9);
+  ctx.closePath();
+  ctx.fill();
+  // Hat band with pattern
   ctx.fillStyle = '#c8a830';
-  ctx.fillRect(-10, hy - 12, 20, 3);
-  // Hat star
+  ctx.fillRect(-11, hy - 12, 22, 3);
+  // Band stitching
+  ctx.strokeStyle = '#a08020';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i < 8; i++) {
+    const bx = -10 + i * 3;
+    ctx.beginPath();
+    ctx.moveTo(bx, hy - 12); ctx.lineTo(bx + 1.5, hy - 9);
+    ctx.stroke();
+  }
+  // Moon and stars on hat
+  ctx.fillStyle = '#ffe880';
+  ctx.globalAlpha = 0.6;
+  // Crescent moon
+  ctx.beginPath();
+  ctx.arc(-1, hy - 19, 2.5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = hatColor;
+  ctx.beginPath();
+  ctx.arc(0, hy - 20, 2, 0, Math.PI * 2);
+  ctx.fill();
+  // Stars
   ctx.fillStyle = '#ffe880';
   ctx.beginPath();
-  ctx.arc(0, hy - 17, 2, 0, Math.PI * 2);
+  ctx.arc(3, hy - 24, 1, 0, Math.PI * 2);
   ctx.fill();
+  ctx.beginPath();
+  ctx.arc(-3, hy - 27, 0.8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(1 + sway * 0.3, hy - 31, 0.7, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
   // Brim
   ctx.fillStyle = hatColor;
   ctx.beginPath();
-  ctx.ellipse(0, hy - 9, 12, 4, 0, 0, Math.PI * 2);
+  ctx.ellipse(0, hy - 9, 13, 4.5, 0, 0, Math.PI * 2);
   ctx.fill();
+  // Brim highlight
+  ctx.fillStyle = robeLight;
+  ctx.globalAlpha = 0.2;
+  ctx.beginPath();
+  ctx.ellipse(0, hy - 10, 11, 2, 0, Math.PI, 0);
+  ctx.fill();
+  ctx.globalAlpha = 1;
 
   ctx.restore();
 }
@@ -192,62 +347,149 @@ function drawMaleWizard(ctx, cx, cy, scale, frame) {
   ctx.translate(cx, cy);
   ctx.scale(scale, scale);
   const bob = Math.sin(frame * 0.08) * 2;
-  const hy = -21 + bob;
-  // Spiky hair detail
+  const sway = Math.sin(frame * 0.25) * 2;
+  const hy = -22 + bob;
+
+  // Spiky hair tufts
   ctx.fillStyle = '#5c2e10';
   ctx.beginPath();
-  ctx.arc(-8, hy - 8, 4, Math.PI, 0);
+  ctx.arc(-8, hy - 8, 4.5, Math.PI, 0);
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(6, hy - 9, 3.5, Math.PI, 0);
+  ctx.arc(6, hy - 9, 4, Math.PI, 0);
   ctx.fill();
+  ctx.beginPath();
+  ctx.arc(-2, hy - 10, 3, Math.PI, 0);
+  ctx.fill();
+  // Hair shine
+  ctx.fillStyle = '#7a4a20';
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  ctx.arc(-5, hy - 10, 3, Math.PI, 0);
+  ctx.fill();
+  ctx.globalAlpha = 1;
 
-  // Staff with wrapped grip
-  const staffTilt = Math.sin(frame * 0.12) * 0.05;
-  ctx.save();
-  ctx.rotate(staffTilt);
-  // Shaft
-  ctx.strokeStyle = '#5a3a18';
-  ctx.lineWidth = 3.5;
+  // ── Short beard (classic wizard)
+  ctx.fillStyle = '#5c2e10';
   ctx.beginPath();
-  ctx.moveTo(14, 14);
-  ctx.lineTo(20, -28 + bob);
+  ctx.moveTo(-5, hy + 6);
+  ctx.quadraticCurveTo(-6, hy + 12, -3, hy + 14);
+  ctx.quadraticCurveTo(1, hy + 16, 4, hy + 14);
+  ctx.quadraticCurveTo(7, hy + 12, 6, hy + 6);
+  ctx.closePath();
+  ctx.fill();
+  // Beard texture lines
+  ctx.strokeStyle = '#4a2010';
+  ctx.lineWidth = 0.6;
+  ctx.beginPath();
+  ctx.moveTo(-3, hy + 8); ctx.lineTo(-2, hy + 13);
+  ctx.moveTo(0, hy + 8);  ctx.lineTo(1, hy + 14);
+  ctx.moveTo(3, hy + 8);  ctx.lineTo(3, hy + 13);
   ctx.stroke();
-  // Wrapped grip
-  ctx.strokeStyle = '#8a6a38';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < 4; i++) {
-    const gy = 6 - i * 4;
-    ctx.beginPath();
-    ctx.moveTo(13, gy); ctx.lineTo(16, gy - 2);
-    ctx.stroke();
-  }
-  // Gem with glow
-  const gemX = 21, gemY = -30 + bob;
-  ctx.shadowColor = '#66aaff';
-  ctx.shadowBlur = 14;
-  ctx.fillStyle = '#4488ff';
+
+  // ── Amulet/pendant
+  ctx.fillStyle = '#c8a830';
+  ctx.lineWidth = 0.8;
+  ctx.strokeStyle = '#c8a830';
   ctx.beginPath();
-  ctx.arc(gemX, gemY, 4.5, 0, Math.PI * 2);
+  ctx.moveTo(-2, -11 + bob);
+  ctx.quadraticCurveTo(0, -8 + bob, 2, -11 + bob);
+  ctx.stroke();
+  ctx.fillStyle = '#4488ff';
+  ctx.shadowColor = '#4488ff';
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  ctx.arc(0, -8.5 + bob, 2, 0, Math.PI * 2);
   ctx.fill();
   ctx.shadowBlur = 0;
-  // Gem highlight
-  ctx.fillStyle = '#aaddff';
+
+  // ── Staff (ornate, right side)
+  const staffTilt = Math.sin(frame * 0.1) * 0.04;
+  ctx.save();
+  ctx.rotate(staffTilt);
+
+  // Staff hand
+  ctx.fillStyle = '#f5c8a0';
   ctx.beginPath();
-  ctx.arc(gemX - 1.5, gemY - 1.5, 1.5, 0, Math.PI * 2);
+  ctx.ellipse(14, 2 + bob, 3, 2.5, 0.3, 0, Math.PI * 2);
   ctx.fill();
-  // Orbiting sparkles
+
+  // Shaft with gradient
+  const shaftGrad = ctx.createLinearGradient(14, 16, 21, -32);
+  shaftGrad.addColorStop(0, '#3a2210');
+  shaftGrad.addColorStop(0.5, '#6a4a28');
+  shaftGrad.addColorStop(1, '#4a3018');
+  ctx.strokeStyle = shaftGrad;
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  ctx.moveTo(14, 16);
+  ctx.lineTo(21, -30 + bob);
+  ctx.stroke();
+  // Rune markings on shaft
+  ctx.strokeStyle = '#4488ff';
+  ctx.globalAlpha = 0.3;
+  ctx.lineWidth = 1;
   for (let i = 0; i < 3; i++) {
-    const a = frame * 0.08 + i * (Math.PI * 2 / 3);
-    const ox = gemX + Math.cos(a) * 8;
-    const oy = gemY + Math.sin(a) * 8;
-    ctx.fillStyle = `rgba(100,170,255,${0.4 + Math.sin(frame * 0.15 + i) * 0.3})`;
+    const ry = -8 - i * 8 + bob;
     ctx.beginPath();
-    ctx.arc(ox, oy, 1.2, 0, Math.PI * 2);
+    ctx.moveTo(16, ry); ctx.lineTo(18, ry - 3); ctx.lineTo(16, ry - 6);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+  // Wrapped grip
+  ctx.strokeStyle = '#8a6a38';
+  ctx.lineWidth = 1.2;
+  for (let i = 0; i < 5; i++) {
+    const gy = 8 - i * 3.5;
+    ctx.beginPath();
+    ctx.moveTo(13, gy); ctx.lineTo(16.5, gy - 2);
+    ctx.stroke();
+  }
+
+  // Staff head - ornate prongs
+  const gemX = 21, gemY = -32 + bob;
+  ctx.fillStyle = '#4a3018';
+  ctx.beginPath();
+  ctx.moveTo(gemX - 4, gemY + 4);
+  ctx.quadraticCurveTo(gemX - 6, gemY - 2, gemX - 3, gemY - 5);
+  ctx.lineTo(gemX, gemY - 2);
+  ctx.lineTo(gemX + 3, gemY - 5);
+  ctx.quadraticCurveTo(gemX + 6, gemY - 2, gemX + 4, gemY + 4);
+  ctx.closePath();
+  ctx.fill();
+
+  // Gem with glow
+  ctx.shadowColor = '#66aaff';
+  ctx.shadowBlur = 18;
+  const gemGrad = ctx.createRadialGradient(gemX, gemY, 0, gemX, gemY, 5);
+  gemGrad.addColorStop(0, '#aaddff');
+  gemGrad.addColorStop(0.4, '#4488ff');
+  gemGrad.addColorStop(1, '#2244aa');
+  ctx.fillStyle = gemGrad;
+  ctx.beginPath();
+  ctx.arc(gemX, gemY, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  // Gem inner highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.5)';
+  ctx.beginPath();
+  ctx.ellipse(gemX - 1.5, gemY - 1.5, 2, 1.2, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Orbiting sparkles
+  for (let i = 0; i < 4; i++) {
+    const a = frame * 0.06 + i * (Math.PI * 2 / 4);
+    const orbitR = 9 + Math.sin(frame * 0.03 + i) * 2;
+    const ox = gemX + Math.cos(a) * orbitR;
+    const oy = gemY + Math.sin(a) * orbitR;
+    const sparkAlpha = 0.3 + Math.sin(frame * 0.12 + i * 1.5) * 0.3;
+    ctx.fillStyle = `rgba(100,180,255,${sparkAlpha})`;
+    ctx.beginPath();
+    ctx.arc(ox, oy, 1.2 + Math.sin(frame * 0.1 + i) * 0.4, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.restore();
-  ctx.restore();
+  ctx.restore(); // staffTilt
+  ctx.restore(); // main transform
 }
 
 function drawFemaleWizard(ctx, cx, cy, scale, frame) {
@@ -257,56 +499,170 @@ function drawFemaleWizard(ctx, cx, cy, scale, frame) {
   ctx.scale(scale, scale);
   const bob = Math.sin(frame * 0.08) * 2;
   const sway = Math.sin(frame * 0.25) * 2;
-  const hy = -21 + bob;
-  // Flowing hair with sway
+  const hy = -22 + bob;
+
+  // ── Long flowing hair with multiple layers and sway
+  // Back hair layer (behind body, rendered after base draws over it)
   ctx.fillStyle = '#d4aa20';
+  // Left lock
   ctx.beginPath();
-  ctx.ellipse(-9, hy + 4, 4 + sway * 0.3, 12, -0.2 + sway * 0.02, 0, Math.PI * 2);
+  ctx.moveTo(-9, hy + 2);
+  ctx.quadraticCurveTo(-12 + sway * 0.5, hy + 12, -10 + sway * 0.8, hy + 22);
+  ctx.quadraticCurveTo(-8 + sway * 0.6, hy + 20, -7, hy + 10);
+  ctx.closePath();
   ctx.fill();
+  // Right lock
   ctx.beginPath();
-  ctx.ellipse(10, hy + 4, 4 - sway * 0.3, 12, 0.2 + sway * 0.02, 0, Math.PI * 2);
+  ctx.moveTo(10, hy + 2);
+  ctx.quadraticCurveTo(13 - sway * 0.5, hy + 12, 11 - sway * 0.8, hy + 22);
+  ctx.quadraticCurveTo(9 - sway * 0.6, hy + 20, 8, hy + 10);
+  ctx.closePath();
   ctx.fill();
-  // Hair highlight
+  // Middle back hair
+  ctx.beginPath();
+  ctx.moveTo(-5, hy + 4);
+  ctx.quadraticCurveTo(-3 + sway * 0.3, hy + 16, -1 + sway * 0.5, hy + 20);
+  ctx.quadraticCurveTo(2 + sway * 0.3, hy + 16, 6, hy + 4);
+  ctx.closePath();
+  ctx.fill();
+  // Hair highlights (golden sheen)
   ctx.fillStyle = '#e8c840';
+  ctx.globalAlpha = 0.4;
   ctx.beginPath();
-  ctx.ellipse(-9, hy + 1, 2, 6, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(-10, hy + 6, 2, 8, -0.15 + sway * 0.01, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(11, hy + 6, 2, 8, 0.15 + sway * 0.01, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  // Hair tips (wispy ends)
+  ctx.fillStyle = '#c89a18';
+  ctx.beginPath();
+  ctx.ellipse(-10 + sway * 0.8, hy + 22, 2, 1.5, sway * 0.1, 0, Math.PI * 2);
+  ctx.ellipse(11 - sway * 0.8, hy + 22, 2, 1.5, -sway * 0.1, 0, Math.PI * 2);
   ctx.fill();
 
-  // Staff
-  const staffTilt = Math.sin(frame * 0.12) * 0.05;
-  ctx.save();
-  ctx.rotate(staffTilt);
-  ctx.strokeStyle = '#8a7a50';
-  ctx.lineWidth = 2.5;
+  // ── Tiara / circlet
+  ctx.strokeStyle = '#c8a830';
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(14, 14);
-  ctx.lineTo(20, -28 + bob);
+  ctx.arc(0, hy - 3, 9, Math.PI + 0.3, -0.3);
   ctx.stroke();
-  // Gem
-  const gemX = 21, gemY = -30 + bob;
-  ctx.shadowColor = '#cc66ff';
-  ctx.shadowBlur = 14;
+  // Tiara gems
+  ctx.fillStyle = '#44aa66';
+  ctx.shadowColor = '#44aa66';
+  ctx.shadowBlur = 4;
+  ctx.beginPath();
+  ctx.arc(0, hy - 12, 2, 0, Math.PI * 2);
+  ctx.fill();
   ctx.fillStyle = '#cc44ff';
   ctx.beginPath();
-  ctx.arc(gemX, gemY, 4.5, 0, Math.PI * 2);
+  ctx.arc(-5, hy - 10, 1.3, 0, Math.PI * 2);
+  ctx.arc(5, hy - 10, 1.3, 0, Math.PI * 2);
   ctx.fill();
   ctx.shadowBlur = 0;
-  ctx.fillStyle = '#ee99ff';
+
+  // ── Necklace
+  ctx.strokeStyle = '#c8a830';
+  ctx.lineWidth = 0.8;
   ctx.beginPath();
-  ctx.arc(gemX - 1.5, gemY - 1.5, 1.5, 0, Math.PI * 2);
+  ctx.moveTo(-3, -11 + bob);
+  ctx.quadraticCurveTo(0, -7 + bob, 3, -11 + bob);
+  ctx.stroke();
+  // Pendant gem
+  ctx.fillStyle = '#44aa66';
+  ctx.shadowColor = '#44aa66';
+  ctx.shadowBlur = 5;
+  ctx.beginPath();
+  // Diamond shape
+  ctx.moveTo(0, -9.5 + bob);
+  ctx.lineTo(-1.5, -7.5 + bob);
+  ctx.lineTo(0, -5.5 + bob);
+  ctx.lineTo(1.5, -7.5 + bob);
+  ctx.closePath();
   ctx.fill();
-  // Golden orbiting sparkles
-  for (let i = 0; i < 3; i++) {
-    const a = frame * 0.08 + i * (Math.PI * 2 / 3);
-    const ox = gemX + Math.cos(a) * 8;
-    const oy = gemY + Math.sin(a) * 8;
-    ctx.fillStyle = `rgba(255,200,60,${0.4 + Math.sin(frame * 0.15 + i) * 0.3})`;
+  ctx.shadowBlur = 0;
+
+  // ── Staff (elegant, curved)
+  const staffTilt = Math.sin(frame * 0.1) * 0.04;
+  ctx.save();
+  ctx.rotate(staffTilt);
+
+  // Staff hand
+  ctx.fillStyle = '#f5c8a0';
+  ctx.beginPath();
+  ctx.ellipse(14, 2 + bob, 2.8, 2.2, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Elegant shaft (lighter wood)
+  const shaftGrad = ctx.createLinearGradient(14, 16, 21, -32);
+  shaftGrad.addColorStop(0, '#6a5a30');
+  shaftGrad.addColorStop(0.5, '#a08a50');
+  shaftGrad.addColorStop(1, '#7a6a38');
+  ctx.strokeStyle = shaftGrad;
+  ctx.lineWidth = 2.8;
+  ctx.beginPath();
+  ctx.moveTo(14, 16);
+  ctx.quadraticCurveTo(18, -10 + bob, 21, -30 + bob);
+  ctx.stroke();
+  // Vine/ivy wrap
+  ctx.strokeStyle = '#44aa66';
+  ctx.globalAlpha = 0.4;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 6; i++) {
+    const vy = 10 - i * 6 + bob * (i > 3 ? 1 : 0);
+    const vx = 15 + (i % 2 === 0 ? 2 : -1);
     ctx.beginPath();
-    ctx.arc(ox, oy, 1.2, 0, Math.PI * 2);
+    ctx.arc(vx, vy, 2, 0, Math.PI);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  // Staff head - crescent moon shape
+  const gemX = 21, gemY = -32 + bob;
+  ctx.fillStyle = '#7a6a38';
+  ctx.beginPath();
+  ctx.arc(gemX, gemY, 7, -Math.PI * 0.3, Math.PI * 1.3);
+  ctx.lineTo(gemX, gemY + 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#a08a50';
+  ctx.beginPath();
+  ctx.arc(gemX + 2, gemY - 1, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Gem with glow (violet crystal)
+  ctx.shadowColor = '#cc66ff';
+  ctx.shadowBlur = 18;
+  const gemGrad = ctx.createRadialGradient(gemX, gemY, 0, gemX, gemY, 5);
+  gemGrad.addColorStop(0, '#ee99ff');
+  gemGrad.addColorStop(0.4, '#cc44ff');
+  gemGrad.addColorStop(1, '#6a1e8a');
+  ctx.fillStyle = gemGrad;
+  ctx.beginPath();
+  ctx.arc(gemX, gemY, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  // Gem inner highlight
+  ctx.fillStyle = 'rgba(255,255,255,0.45)';
+  ctx.beginPath();
+  ctx.ellipse(gemX - 1.5, gemY - 1.5, 2, 1.2, -0.3, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Golden orbiting sparkles (more ethereal)
+  for (let i = 0; i < 5; i++) {
+    const a = frame * 0.05 + i * (Math.PI * 2 / 5);
+    const orbitR = 9 + Math.sin(frame * 0.03 + i * 1.2) * 3;
+    const ox = gemX + Math.cos(a) * orbitR;
+    const oy = gemY + Math.sin(a) * orbitR;
+    const sparkAlpha = 0.25 + Math.sin(frame * 0.1 + i * 1.5) * 0.25;
+    ctx.fillStyle = `rgba(255,200,80,${sparkAlpha})`;
+    ctx.beginPath();
+    ctx.arc(ox, oy, 1 + Math.sin(frame * 0.08 + i) * 0.5, 0, Math.PI * 2);
     ctx.fill();
   }
-  ctx.restore();
-  ctx.restore();
+  ctx.restore(); // staffTilt
+  ctx.restore(); // main transform
 }
 
 // ── Wizard portrait (larger, for character select) ───────────────────────────

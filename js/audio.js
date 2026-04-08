@@ -37,7 +37,7 @@ class AudioManager {
             this.musicGain.connect(this.masterGain);
             // SFX bus (default 0.5)
             this.sfxGain = this.ctx.createGain();
-            this.sfxGain.gain.value = 0.5;
+            this.sfxGain.gain.value = 0.125;
             this.sfxGain.connect(this.masterGain);
             this._initialized = true;
         } catch (_) { /* silently ignore — methods will no-op */ }
