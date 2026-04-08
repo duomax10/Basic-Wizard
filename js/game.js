@@ -291,14 +291,27 @@ class Game {
     let tx, ty;
     const isTouchDevice = 'ontouchstart' in window;
     if (isTouchDevice) {
-      let nearest = null, nearestD = Infinity;
+      // Normalize facing direction
+      const fLen = Math.sqrt(p.facing.x * p.facing.x + p.facing.y * p.facing.y) || 1;
+      const fx = p.facing.x / fLen;
+      const fy = p.facing.y / fLen;
+
+      // Find best target: prefer enemies in facing direction within range
+      const maxRange = 280;
+      let best = null, bestScore = -Infinity;
       for (const e of this.enemies) {
         if (!e.alive) continue;
         const d = dist(p.x, p.y, e.x, e.y);
-        if (d < nearestD) { nearestD = d; nearest = e; }
+        if (d > maxRange) continue;
+        // Dot product with facing: 1 = directly ahead, -1 = behind
+        const dx = (e.x - p.x) / d, dy = (e.y - p.y) / d;
+        const dot = fx * dx + fy * dy;
+        // Score: prefer close + in-front (dot > 0 = in front)
+        const score = dot * 100 - d * 0.3;
+        if (score > bestScore) { bestScore = score; best = e; }
       }
-      if (nearest) { tx = nearest.x; ty = nearest.y; }
-      else { tx = p.x + p.facing.x * 100; ty = p.y + p.facing.y * 100; }
+      if (best) { tx = best.x; ty = best.y; }
+      else { tx = p.x + fx * 150; ty = p.y + fy * 150; }
     } else {
       tx = this.input.mouse.x + this.renderer.camX;
       ty = this.input.mouse.y + this.renderer.camY;
