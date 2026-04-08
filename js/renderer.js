@@ -154,42 +154,49 @@ class Renderer {
     ctx.font = `bold ${Math.round(barH * 0.8)}px monospace`;
     ctx.fillText(`LVL ${player.level}`, pad, xy + 18);
 
-    // Active spell icon
-    const spellDef = SPELL_TYPES[player.activeSpell];
-    const si = W - 70;
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    ctx.beginPath();
-    ctx.roundRect(si - 4, pad - 4, 64, 58, 8);
-    ctx.fill();
-    ctx.font = '32px sans-serif';
-    ctx.fillText(spellDef.icon, si + 6, pad + 34);
+    // Spell slots (top-right)
+    const slotSz = 36;
+    const slotPad = 6;
+    const slotStartX = W - (player.knownSpells.length * (slotSz + slotPad)) - pad;
+    for (let i = 0; i < player.knownSpells.length; i++) {
+      const sk = player.knownSpells[i];
+      const def = SPELL_TYPES[sk];
+      const bx = slotStartX + i * (slotSz + slotPad);
+      const by = pad;
+      const isActive = sk === player.activeSpell;
 
-    // Cooldown overlay
-    const cdRatio = (player.spellCooldowns[player.activeSpell] || 0) / (spellDef.cooldown);
-    if (cdRatio > 0) {
-      ctx.fillStyle = `rgba(0,0,0,${cdRatio * 0.7})`;
+      // Slot background
+      ctx.fillStyle = isActive ? 'rgba(180,140,255,0.45)' : 'rgba(0,0,0,0.5)';
       ctx.beginPath();
-      ctx.roundRect(si - 4, pad - 4, 64, 58, 8);
+      ctx.roundRect(bx, by, slotSz, slotSz, 6);
       ctx.fill();
-    }
+      // Border
+      ctx.strokeStyle = isActive ? '#cc88ff' : 'rgba(255,255,255,0.15)';
+      ctx.lineWidth = isActive ? 2 : 1;
+      ctx.beginPath();
+      ctx.roundRect(bx, by, slotSz, slotSz, 6);
+      ctx.stroke();
 
-    ctx.fillStyle = '#fff';
-    ctx.font = `11px monospace`;
-    ctx.fillText(spellDef.name, si - 2, pad + 54);
-
-    // Known spell slots (small icons bottom of HUD area)
-    if (player.knownSpells.length > 1) {
-      for (let i = 0; i < player.knownSpells.length; i++) {
-        const sk = player.knownSpells[i];
-        const bx = si - 2 + i * 28;
-        const by = pad + 60;
-        ctx.fillStyle = sk === player.activeSpell ? 'rgba(255,220,100,0.3)' : 'rgba(0,0,0,0.3)';
+      // Cooldown overlay
+      const cd = (player.spellCooldowns[sk] || 0) / (def.cooldown);
+      if (cd > 0) {
+        ctx.fillStyle = `rgba(0,0,0,${cd * 0.65})`;
         ctx.beginPath();
-        ctx.roundRect(bx, by, 24, 24, 4);
+        ctx.roundRect(bx, by, slotSz, slotSz, 6);
         ctx.fill();
-        ctx.font = '14px sans-serif';
-        ctx.fillText(SPELL_TYPES[sk].icon, bx + 4, by + 18);
       }
+
+      // Icon
+      ctx.font = `${Math.round(slotSz * 0.55)}px sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#fff';
+      ctx.fillText(def.icon, bx + slotSz / 2, by + slotSz * 0.65);
+
+      // Key hint
+      ctx.font = '9px monospace';
+      ctx.fillStyle = 'rgba(255,255,255,0.5)';
+      ctx.fillText(i + 1, bx + slotSz / 2, by + slotSz - 3);
+      ctx.textAlign = 'left';
     }
 
     // Status effects
