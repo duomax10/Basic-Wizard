@@ -65,23 +65,35 @@ class Game {
     this.input.bind(this.canvas);
 
     const handlePt = (mx, my) => {
+      // Initialize audio on first user interaction (browser requirement)
+      if (typeof audio !== 'undefined') audio.init();
+
       switch (this.state) {
         case STATE.TITLE:
           if (this.ui.handleTitleClick(mx, my)) {
+            if (typeof audio !== 'undefined') audio.playUIClick();
             this._goToCharSelect();
           }
           break;
         case STATE.CHAR_SELECT:
-          this.ui.handleCharSelectClick(mx, my);
+          if (this.ui.handleCharSelectClick(mx, my)) {
+            if (typeof audio !== 'undefined') audio.playUIClick();
+          }
           break;
         case STATE.SPELL_SELECT:
-          this.ui.handleSpellSelectClick(mx, my);
+          if (this.ui.handleSpellSelectClick(mx, my)) {
+            if (typeof audio !== 'undefined') audio.playUIClick();
+          }
           break;
         case STATE.GAME_OVER:
-          this.ui.handleGameOverClick(mx, my);
+          if (this.ui.handleGameOverClick(mx, my)) {
+            if (typeof audio !== 'undefined') audio.playUIClick();
+          }
           break;
         case STATE.NEXT_LEVEL:
-          if (this._advanceCallback) this.ui.handleNextLevelClick(mx, my);
+          if (this._advanceCallback && this.ui.handleNextLevelClick(mx, my)) {
+            if (typeof audio !== 'undefined') audio.playUIClick();
+          }
           break;
         case STATE.PLAYING:
           if (this.player) {
@@ -126,6 +138,9 @@ class Game {
     this.spellManager = new SpellManager();
     this._loadLevel(gender);
     this.state = STATE.PLAYING;
+    // Start themed music
+    const theme = DUNGEONS[this.dungeonIdx].theme;
+    if (typeof audio !== 'undefined') audio.startMusic(theme);
   }
 
   _loadLevel(gender) {
@@ -168,6 +183,9 @@ class Game {
         this.levelIdx = 0;
         this._loadLevel(gender);
         this.state = STATE.PLAYING;
+        // Switch music theme for new dungeon
+        const newTheme = DUNGEONS[this.dungeonIdx].theme;
+        if (typeof audio !== 'undefined') audio.startMusic(newTheme);
       } else {
         this.levelIdx++;
         this._loadLevel(gender);
@@ -194,6 +212,7 @@ class Game {
     const p = this.player;
     if (!p || !p.alive) {
       this.state = STATE.GAME_OVER;
+      if (typeof audio !== 'undefined') audio.stopMusic(1.5);
       this.ui.renderGameOver(p, () => {
         this.player = null;
         this._goToCharSelect();
@@ -224,6 +243,7 @@ class Game {
     const sty = this.dungeon.stairY * TILE + TILE / 2;
     if (dist(p.x, p.y, stx, sty) < TILE * 1.3) {
       if (this.enemies.every(e => !e.alive)) {
+        if (typeof audio !== 'undefined') audio.playPortal();
         this._advanceLevel();
         return;
       }
@@ -238,11 +258,13 @@ class Game {
       if (!e.alive && !e._deathHandled) {
         e._deathHandled = true;
         this.spellManager.spawnDeathParticles(e.x, e.y, ENEMY_TYPES[e.type].color || '#666');
+        if (typeof audio !== 'undefined') audio.playEnemyDeath();
         const result = player.gainXP(e.def.xpReward);
         if (result === 'levelUp') {
           player.levelUp();
           this.levelUpTimer = this.levelUpBannerDuration;
           if (player.pendingSpellChoice) this._pendingSpellSelect = true;
+          if (typeof audio !== 'undefined') audio.playLevelUp();
         }
       }
     }
@@ -284,6 +306,7 @@ class Game {
 
     p.castSpell(p.activeSpell);
     this.spellManager.cast(p.x, p.y, tx, ty, p.activeSpell, p.damageMultiplier);
+    if (typeof audio !== 'undefined') audio.playSpellCast(p.activeSpell);
   }
 
   // ── Render ────────────────────────────────────────────────────────────────

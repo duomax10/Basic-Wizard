@@ -44,6 +44,7 @@ class Projectile {
   _applyHit(enemy, allEnemies, onChain) {
     const dmg = Math.round(this.def.damage * this.damageMultiplier);
     enemy.takeDamage(dmg, this.spellKey);
+    if (typeof audio !== 'undefined') audio.playHit();
 
     if (this.def.special === 'burn') {
       enemy.applyBurn(this.def.burnDamage * this.damageMultiplier,

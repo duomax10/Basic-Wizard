@@ -37,6 +37,8 @@ class Player {
 
     // Direction (for rendering)
     this.facing = { x: 1, y: 0 };
+    this.moving = false;
+    this._footstepTimer = 0;
   }
 
   // ── XP & levelling ──────────────────────────────────────────────────────────
@@ -95,6 +97,7 @@ class Player {
     this.flashTimer  = 180;
     this.screenShake = 6;
     this.invincTimer = 400;
+    if (typeof audio !== 'undefined') audio.playPlayerDamage();
     if (this.hp <= 0) {
       this.hp    = 0;
       this.alive = false;
@@ -129,9 +132,18 @@ class Player {
 
     // Movement
     const mv = input.getMovement();
-    if (mv.x !== 0 || mv.y !== 0) {
+    this.moving = (mv.x !== 0 || mv.y !== 0);
+    if (this.moving) {
       this.facing.x = mv.x;
       this.facing.y = mv.y;
+      // Footstep sounds
+      this._footstepTimer -= dt;
+      if (this._footstepTimer <= 0) {
+        this._footstepTimer = 0.3;
+        if (typeof audio !== 'undefined') audio.playFootstep();
+      }
+    } else {
+      this._footstepTimer = 0;
     }
     this._move(mv.x * this.speed, mv.y * this.speed, dt, dungeon);
 
