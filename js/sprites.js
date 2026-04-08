@@ -518,13 +518,6 @@ function drawFemaleWizard(ctx, cx, cy, scale, frame) {
   ctx.quadraticCurveTo(9 - sway * 0.6, hy + 20, 8, hy + 10);
   ctx.closePath();
   ctx.fill();
-  // Middle back hair
-  ctx.beginPath();
-  ctx.moveTo(-5, hy + 4);
-  ctx.quadraticCurveTo(-3 + sway * 0.3, hy + 16, -1 + sway * 0.5, hy + 20);
-  ctx.quadraticCurveTo(2 + sway * 0.3, hy + 16, 6, hy + 4);
-  ctx.closePath();
-  ctx.fill();
   // Hair highlights (golden sheen)
   ctx.fillStyle = '#e8c840';
   ctx.globalAlpha = 0.4;
