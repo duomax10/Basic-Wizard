@@ -278,8 +278,8 @@ class Renderer {
       ctx.stroke();
     } else {
       // Idle hint – faded joystick in bottom-left
-      const hx = 70;
-      const hy = H - 80;
+      const hx = 80;
+      const hy = H - 180;
 
       ctx.beginPath();
       ctx.arc(hx, hy, maxR, 0, Math.PI * 2);

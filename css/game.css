@@ -37,16 +37,7 @@ html, body {
   pointer-events: none;
 }
 
-/* Show touch controls only on touch devices */
-@media (pointer: coarse) {
-  #mobile-controls {
-    display: flex !important;
-    justify-content: space-between;
-    align-items: flex-end;
-    padding: 0 20px 20px;
-    pointer-events: none;
-  }
-}
+/* Touch controls are rendered on canvas; keep HTML overlay hidden */
 
 #joystick-area {
   pointer-events: none;
