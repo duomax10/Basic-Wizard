@@ -447,7 +447,7 @@ class UI {
     const btnSz  = 50;
     const pad2   = 12;
     const startX = W - (player.knownSpells.length * (btnSz + pad2)) - pad2;
-    const by     = H - btnSz - pad2;
+    const by     = H - btnSz - 80;
     this._mobileSpellBtns = [];
     for (let i = 0; i < player.knownSpells.length; i++) {
       const sk = player.knownSpells[i];

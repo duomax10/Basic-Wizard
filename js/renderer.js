@@ -217,7 +217,7 @@ class Renderer {
     const mmH   = 120;
     const scale = mmW / (MAP_W * TILE);
     const ox    = W - mmW - 14;
-    const oy    = H - mmH - 14;
+    const oy    = H - mmH - 80;
 
     // Background
     ctx.fillStyle = 'rgba(0,0,0,0.7)';
@@ -277,9 +277,9 @@ class Renderer {
       ctx.lineWidth = 2;
       ctx.stroke();
     } else {
-      // Idle hint – faded joystick in bottom-left
+      // Idle hint – faded joystick in bottom-left (above safe area)
       const hx = 80;
-      const hy = H - 180;
+      const hy = H * 0.58;
 
       ctx.beginPath();
       ctx.arc(hx, hy, maxR, 0, Math.PI * 2);
@@ -295,10 +295,10 @@ class Renderer {
       ctx.fill();
     }
 
-    // ── Cast button (right side)
+    // ── Cast button (right side, above safe area)
     const castR = 34;
     const castX = W - 60;
-    const castY = H - 200;
+    const castY = H * 0.58;
 
     ctx.save();
     ctx.shadowColor = 'rgba(180,140,255,0.5)';
