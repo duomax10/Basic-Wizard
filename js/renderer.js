@@ -279,7 +279,7 @@ class Renderer {
     } else {
       // Idle hint – faded joystick in bottom-left (above safe area)
       const hx = 80;
-      const hy = H * 0.68;
+      const hy = H * 0.75;
 
       ctx.beginPath();
       ctx.arc(hx, hy, maxR, 0, Math.PI * 2);
@@ -298,7 +298,7 @@ class Renderer {
     // ── Cast button (right side, above safe area)
     const castR = 34;
     const castX = W - 60;
-    const castY = H * 0.68;
+    const castY = H * 0.75;
 
     ctx.save();
     ctx.shadowColor = 'rgba(180,140,255,0.5)';

@@ -333,101 +333,113 @@ class AudioManager {
         this._musicSources = [];
     }
 
-    // --- Crypt theme (D minor, ~60 BPM) ---
+    // --- Crypt theme (D minor, slow ambient) ---
     _musicCrypt() {
-        this._startDrone(73.42, 'sine', 0.15);       // D2 bass drone
-        this._startAmbientNoise(300, 0.04);           // quiet filtered noise
-        // Melody: D4 F4 A4 G4 F4 E4 D4 (triangle, 0.5s each)
-        const melody = [293.66, 349.23, 440.00, 392.00, 349.23, 329.63, 293.66];
-        const nd = 0.5;
-        const loop = () => {
-            if (!this._musicLoopRunning) return;
-            const now = this.ctx.currentTime;
-            melody.forEach((f, i) => {
-                this._scheduleNote(f, now + i * nd, nd * 0.85, 'triangle', this.musicGain);
-            });
-            this._musicTimers.push(setTimeout(loop, melody.length * nd * 1000));
-        };
-        loop();
+        this._startDrone(73.42, 'sine', 0.06);        // very quiet D2 drone
+        this._startAmbientNoise(200, 0.025);           // whisper of wind
+        // Long melody with rests (0 = silence). Slow, sparse, eerie.
+        // D4  .  F4  .  .  A3  .  G4  .  .  D4  .  E4  F4  .  .  D4  .  .  A3  .  .  .  .
+        const melody = [
+            293.66, 0, 349.23, 0, 0, 220.00, 0, 392.00, 0, 0,
+            293.66, 0, 329.63, 349.23, 0, 0, 293.66, 0, 0, 220.00,
+            0, 0, 0, 0
+        ];
+        const nd = 0.9; // slow notes
+        this._playFilteredMelody(melody, nd, 'sine', 600, 0.08);
     }
 
-    // --- Stronghold theme (A minor, ~80 BPM) ---
+    // --- Stronghold theme (A minor, brooding) ---
     _musicStronghold() {
-        const beat = 0.75;
-        this._startDrone(55, 'sawtooth', 0.1);        // A1 bass
-        this._startDrone(82.41, 'sawtooth', 0.08);     // E2 power-chord fifth
-        // War-drum pulse (~1.3Hz oscillator bursts)
+        this._startDrone(55, 'sine', 0.05);            // quiet A1 bass
+        this._startAmbientNoise(150, 0.02);            // low rumble
+        // Slow war-drum pulse
         const drum = () => {
             if (!this._musicLoopRunning) return;
             const now = this.ctx.currentTime;
             const osc = this.ctx.createOscillator();
             osc.type = 'sine';
-            osc.frequency.value = 55;
+            osc.frequency.value = 50;
             const g = this.ctx.createGain();
-            g.gain.setValueAtTime(0.2, now);
-            g.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+            g.gain.setValueAtTime(0.1, now);
+            g.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
             osc.connect(g);
             g.connect(this.musicGain);
             osc.start(now);
-            osc.stop(now + 0.15);
+            osc.stop(now + 0.2);
             this._musicOscillators.push(osc);
-            this._musicTimers.push(setTimeout(drum, 770));
+            this._musicTimers.push(setTimeout(drum, 1800 + Math.random() * 400));
         };
         drum();
-        // Melody: A3 C4 E4 A4 G4 E4 C4 A3 (square)
-        const melody = [220.00, 261.63, 329.63, 440.00, 392.00, 329.63, 261.63, 220.00];
-        const loop = () => {
-            if (!this._musicLoopRunning) return;
-            const now = this.ctx.currentTime;
-            melody.forEach((f, i) => {
-                this._scheduleNote(f, now + i * beat, beat * 0.8, 'square', this.musicGain);
-            });
-            this._musicTimers.push(setTimeout(loop, melody.length * beat * 1000));
-        };
-        loop();
+        // Long melody with rests. Darker, more deliberate.
+        // A3  .  .  C4  .  E4  .  .  .  A3  .  G3  .  .  A3  .  C4  .  .  .  E3  .  .  .
+        const melody = [
+            220.00, 0, 0, 261.63, 0, 329.63, 0, 0, 0, 220.00,
+            0, 196.00, 0, 0, 220.00, 0, 261.63, 0, 0, 0,
+            164.81, 0, 0, 0
+        ];
+        const nd = 0.8;
+        this._playFilteredMelody(melody, nd, 'triangle', 800, 0.07);
     }
 
-    // --- Infernal theme (E minor, ~100 BPM) ---
+    // --- Infernal theme (E minor, ominous) ---
     _musicInfernal() {
-        const beat = 0.6;
-        // Detuned E2 drones for ominous beating effect
-        this._startDrone(82.41, 'sawtooth', 0.12);
-        this._startDrone(82.41 * 1.005, 'sawtooth', 0.12);
-        this._startAmbientNoise(120, 0.05);            // low rumble
-        // Random crackling noise bursts
+        // Detuned low drones — quiet, ominous beating
+        this._startDrone(82.41, 'sine', 0.05);
+        this._startDrone(82.41 * 1.003, 'sine', 0.05);
+        this._startAmbientNoise(100, 0.03);            // deep rumble
+        // Slow crackling (less frequent)
         const crackle = () => {
             if (!this._musicLoopRunning) return;
             this._playMusicNoise(
-                0.02 + Math.random() * 0.04,
-                1500 + Math.random() * 3000, 'bandpass', 0.06
+                0.02 + Math.random() * 0.03,
+                2000 + Math.random() * 2000, 'bandpass', 0.03
             );
-            this._musicTimers.push(setTimeout(crackle, 200 + Math.random() * 400));
+            this._musicTimers.push(setTimeout(crackle, 600 + Math.random() * 1200));
         };
         crackle();
-        // Melody: E4 G4 B4 D5 C5 B4 A4 G4 (sawtooth through lowpass)
-        const melody = [329.63, 392.00, 493.88, 587.33, 523.25, 493.88, 440.00, 392.00];
+        // Long melody with rests. Descending, foreboding.
+        // E4  .  .  G4  .  .  B3  .  .  .  E4  .  D4  .  .  C4  .  .  B3  .  .  A3  .  .  .  .  .  .  .  .
+        const melody = [
+            329.63, 0, 0, 392.00, 0, 0, 246.94, 0, 0, 0,
+            329.63, 0, 293.66, 0, 0, 261.63, 0, 0, 246.94, 0,
+            0, 220.00, 0, 0, 0, 0, 0, 0, 0, 0
+        ];
+        const nd = 0.7;
+        this._playFilteredMelody(melody, nd, 'sine', 500, 0.06);
+    }
+
+    /**
+     * Shared melody player: plays notes through a lowpass filter with
+     * smooth attack/release envelopes. Skips 0-freq entries as rests.
+     */
+    _playFilteredMelody(melody, noteDur, oscType, filterFreq, vol) {
         const loop = () => {
             if (!this._musicLoopRunning) return;
             const now = this.ctx.currentTime;
             melody.forEach((f, i) => {
-                const t = now + i * beat;
+                if (f === 0) return; // rest
+                const t = now + i * noteDur;
                 const osc = this.ctx.createOscillator();
-                osc.type = 'sawtooth';
+                osc.type = oscType;
                 osc.frequency.value = f;
                 const lp = this.ctx.createBiquadFilter();
                 lp.type = 'lowpass';
-                lp.frequency.value = 1200;
+                lp.frequency.value = filterFreq;
+                lp.Q.value = 0.7;
                 const g = this.ctx.createGain();
-                g.gain.setValueAtTime(0.14, t);
-                g.gain.linearRampToValueAtTime(0, t + beat * 0.85);
+                // Smooth attack + long release
+                g.gain.setValueAtTime(0, t);
+                g.gain.linearRampToValueAtTime(vol, t + 0.08);
+                g.gain.linearRampToValueAtTime(vol * 0.7, t + noteDur * 0.5);
+                g.gain.linearRampToValueAtTime(0, t + noteDur * 0.95);
                 osc.connect(lp);
                 lp.connect(g);
                 g.connect(this.musicGain);
                 osc.start(t);
-                osc.stop(t + beat + 0.01);
+                osc.stop(t + noteDur + 0.01);
                 this._musicOscillators.push(osc);
             });
-            this._musicTimers.push(setTimeout(loop, melody.length * beat * 1000));
+            this._musicTimers.push(setTimeout(loop, melody.length * noteDur * 1000));
         };
         loop();
     }
